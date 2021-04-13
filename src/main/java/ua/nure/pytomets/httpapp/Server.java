@@ -58,11 +58,19 @@ public class Server {
             body.append((char) br.read());
         }
 
-        var headers = new ArrayList<>();
+        var headers = new ArrayList<String>();
         for (int h = 2; h < requestsLines.length; h++) {
             var header = requestsLines[h];
             headers.add(header);
         }
+
+        var isAllowedClient = headers.stream()
+               .anyMatch((header) -> header.startsWith("User-Agent") && header.contains("Java-http-client"));
+        if (!isAllowedClient) {
+            System.out.println("ERROR");
+            return;
+        }
+        System.out.println("ALLOWED CLIENT");
 
         var accessLog = format("Client %s,\n method %s,\n path %s,\n version %s,\n host %s,\n body %s,\n headers %s\n",
                 socket.toString(), method, path, version, host, body, headers.toString());
